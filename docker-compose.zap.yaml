@@ -1,0 +1,19 @@
+services:
+  ? adp-test-dr-11
+  : command: npm run start:watch
+    build:
+      target: development
+    image: adp-test-dr-11-development
+    environment:
+      NODE_ENV: test
+    volumes:
+      - ./test-output:/home/node/test-output
+
+  zap-baseline-scan:
+    image: softwaresecurityproject/zap-bare:2.14.0
+    command: zap.sh -cmd -quickurl ${TEST_ENVIRONMENT_ROOT_URL:-http://adp-test-dr-11:3000} -zapit ${TEST_ENVIRONMENT_ROOT_URL:-http://adp-test-dr-11:3000} -configfile config/zap.conf -quickout test-output/zap-report.html -silent -quickprogress
+    depends_on:
+      - adp-test-dr-11
+    volumes:
+      - ./test-output:/zap/test-output
+      - ./zap:/zap/config
